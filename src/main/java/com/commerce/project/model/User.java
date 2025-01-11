@@ -29,10 +29,10 @@ public class User {
     @NotBlank
     @Size(min = 2, max = 20)
     @Column(name = "username")
-    private String username;
+    private String userName;
 
     @NotBlank
-    @Size(min = 2, max = 100)
+    @Size(min = 6, max = 100)
     @Column(name = "password")
     private String password;
 
@@ -42,8 +42,8 @@ public class User {
     @Column(name = "email")
     private String email;
 
-    public User(String username, String password, String email) {
-        this.username = username;
+    public User(String userName, String password, String email) {
+        this.userName = userName;
         this.password = password;
         this.email = email;
     }
