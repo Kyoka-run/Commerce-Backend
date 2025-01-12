@@ -36,9 +36,9 @@ public class Address {
     @Size(min = 2, message = "Country must be at least 5 characters")
     private String country;
 
-    @ToString.Exclude
-    @ManyToMany(mappedBy = "addresses")
-    private List<User> users;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Address(String postcode, String street, String city, String country) {
         this.postcode = postcode;
