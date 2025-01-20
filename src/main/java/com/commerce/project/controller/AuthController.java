@@ -68,10 +68,10 @@ public class AuthController {
 
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
+                .toList();
 
         // LoginResponse response = new LoginResponse(userDetails.getId(), jwtToken, userDetails.getUsername(), roles);
-        LoginResponse response = new LoginResponse(userDetails.getId(), userDetails.getUsername(), roles);
+        LoginResponse response = new LoginResponse(userDetails.getId(), jwtCookie.toString(), userDetails.getUsername(), roles);
 
         // return ResponseEntity.ok(response);
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString()).body(response);
