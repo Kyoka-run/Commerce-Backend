@@ -10,6 +10,7 @@ import com.commerce.project.service.AddressService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -59,33 +60,23 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
+    @Transactional
     public AddressDTO updateAddress(Long addressId, AddressDTO addressDTO) {
         Address addressFromDatabase = addressRepository.findById(addressId)
                 .orElseThrow(() -> new ResourceNotFoundException("Address", "addressId", addressId));
-
         addressFromDatabase.setCity(addressDTO.getCity());
         addressFromDatabase.setPostcode(addressDTO.getPostcode());
         addressFromDatabase.setCountry(addressDTO.getCountry());
         addressFromDatabase.setStreet(addressDTO.getStreet());
-
         Address updatedAddress = addressRepository.save(addressFromDatabase);
-
-        User user = addressFromDatabase.getUser();
-        user.getAddresses().removeIf(address -> address.getAddressId().equals(addressId));
-        user.getAddresses().add(updatedAddress);
-        userRepository.save(user);
-
         return modelMapper.map(updatedAddress, AddressDTO.class);
     }
 
     @Override
+    @Transactional
     public String deleteAddress(Long addressId) {
         Address addressFromDatabase = addressRepository.findById(addressId)
                 .orElseThrow(() -> new ResourceNotFoundException("Address", "addressId", addressId));
-
-        User user = addressFromDatabase.getUser();
-        user.getAddresses().removeIf(address -> address.getAddressId().equals(addressId));
-        userRepository.save(user);
 
         addressRepository.delete(addressFromDatabase);
 
