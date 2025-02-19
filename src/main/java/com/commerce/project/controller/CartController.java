@@ -3,6 +3,7 @@ package com.commerce.project.controller;
 import com.commerce.project.Util.AuthUtil;
 import com.commerce.project.model.Cart;
 import com.commerce.project.payload.CartDTO;
+import com.commerce.project.payload.CartItemDTO;
 import com.commerce.project.repository.CartRepository;
 import com.commerce.project.service.CartService;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,12 @@ public class CartController {
         this.cartService = cartService;
         this.cartRepository = cartRepository;
         this.authUtil = authUtil;
+    }
+
+    @PostMapping("/cart/create")
+    public ResponseEntity<String> createOrUpdateCart(@RequestBody List<CartItemDTO> cartItems){
+        String response = cartService.createOrUpdateCartWithItems(cartItems);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PostMapping("/carts/products/{productId}/quantity/{quantity}")

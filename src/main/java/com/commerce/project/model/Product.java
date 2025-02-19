@@ -25,8 +25,9 @@ public class Product {
     private String productName;
 
     @NotBlank
-    @Size(min = 5, max = 50, message = "Product description must contain at least 5 characters")
+    @Size(min = 5, max = 500, message = "Product description must contain at least 5 characters, at most 500 characters")
     private String description;
+
     private String image;
     private Integer quantity;
     private double price;
