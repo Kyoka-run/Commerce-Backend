@@ -123,7 +123,7 @@ public class ProductServiceImpl implements ProductService {
             Product savedProduct = productRepository.save(product);
             return modelMapper.map(savedProduct, ProductDTO.class);
         } else {
-            throw new APIException("Product already exist!!");
+            throw new APIException("Product already exist");
         }
     }
 

@@ -104,6 +104,13 @@
 			<artifactId>stripe-java</artifactId>
 			<version>28.3.1</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>2.3.232</version>
+			<scope>test</scope>
+		</dependency>
     </dependencies>
 
 	<build>
