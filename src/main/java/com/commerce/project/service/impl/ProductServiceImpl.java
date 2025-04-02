@@ -46,7 +46,7 @@ public class ProductServiceImpl implements ProductService {
         this.cartRepository = cartRepository;
     }
 
-    // Refer to application.properties
+    // Refer to application-dev.properties
     @Value("${project.image}")
     private String path;
 
