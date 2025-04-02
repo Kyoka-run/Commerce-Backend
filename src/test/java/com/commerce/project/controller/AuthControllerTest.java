@@ -126,6 +126,12 @@ public class AuthControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getHeaders().containsKey(HttpHeaders.SET_COOKIE));
         assertEquals(jwtCookie.toString(), response.getHeaders().getFirst(HttpHeaders.SET_COOKIE));
+
+        // Verify the response body contains email
+        assertTrue(response.getBody() instanceof LoginResponse);
+        LoginResponse loginResponse = (LoginResponse) response.getBody();
+        assertEquals(userDetails.getEmail(), loginResponse.getEmail());
+
         verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(jwtUtils, times(1)).generateJwtCookie(any(UserDetailsImpl.class));
     }
@@ -241,8 +247,10 @@ public class AuthControllerTest {
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(userDetails.getId(), response.getBody().getId());
-        assertEquals(userDetails.getUsername(), response.getBody().getUsername());
+        LoginResponse loginResponse = response.getBody();
+        assertEquals(userDetails.getId(), loginResponse.getId());
+        assertEquals(userDetails.getUsername(), loginResponse.getUsername());
+        assertEquals(userDetails.getEmail(), loginResponse.getEmail());
         verify(authentication, times(1)).getPrincipal();
     }
 }

@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 public class OrderController {
@@ -45,6 +47,13 @@ public class OrderController {
     public ResponseEntity<String> createStripeClientSecret(@RequestBody StripePaymentDTO stripePaymentDTO) throws StripeException {
         PaymentIntent paymentIntent = stripeService.paymentIntent(stripePaymentDTO);
         return new ResponseEntity<>(paymentIntent.getClientSecret(), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/user/orders")
+    public ResponseEntity<List<OrderDTO>> getUserOrders() {
+        String emailId = authUtil.loggedInEmail();
+        List<OrderDTO> orders = orderService.getUserOrders(emailId);
+        return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 }
 

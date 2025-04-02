@@ -109,5 +109,23 @@ public class OrderServiceImpl implements OrderService {
 
         return orderDTO;
     }
+
+    @Override
+    public List<OrderDTO> getUserOrders(String emailId) {
+        List<Order> orders = orderRepository.findByEmailOrderByOrderDateDesc(emailId);
+
+        List<OrderDTO> orderDTOs = orders.stream().map(order -> {
+            OrderDTO orderDTO = modelMapper.map(order, OrderDTO.class);
+            List<OrderItem> orderItems = order.getOrderItems();
+            List<OrderItemDTO> orderItemDTOs = orderItems.stream()
+                    .map(item -> modelMapper.map(item, OrderItemDTO.class))
+                    .toList();
+            orderDTO.setOrderItems(orderItemDTOs);
+            orderDTO.setAddressId(order.getAddress().getAddressId());
+            return orderDTO;
+        }).toList();
+
+        return orderDTOs;
+    }
 }
 

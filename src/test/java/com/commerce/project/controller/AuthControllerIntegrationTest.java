@@ -155,6 +155,7 @@ public class AuthControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(cookie().exists("SpringBootCommerce"))
                 .andExpect(jsonPath("$.username").value(TEST_USERNAME))
+                .andExpect(jsonPath("$.email").value(TEST_EMAIL))
                 .andExpect(jsonPath("$.roles").isArray())
                 .andExpect(jsonPath("$.roles[0]").value("ROLE_USER"));
     }

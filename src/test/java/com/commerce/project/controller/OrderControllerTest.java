@@ -17,6 +17,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -47,6 +51,7 @@ public class OrderControllerTest {
     private String email;
     private Long addressId;
     private String paymentMethod;
+    private List<OrderDTO> orderDTOList;
 
     @BeforeEach
     void setUp() {
@@ -61,6 +66,8 @@ public class OrderControllerTest {
         orderDTO.setTotalAmount(100.0);
         orderDTO.setOrderStatus("Order Accepted");
         orderDTO.setAddressId(addressId);
+        orderDTO.setOrderDate(LocalDate.now());
+        orderDTO.setOrderItems(new ArrayList<>());
 
         orderRequestDTO = new OrderRequestDTO();
         orderRequestDTO.setAddressId(addressId);
@@ -73,6 +80,22 @@ public class OrderControllerTest {
         stripePaymentDTO = new StripePaymentDTO();
         stripePaymentDTO.setAmount(10000L);
         stripePaymentDTO.setCurrency("usd");
+
+        // Set up order list for user orders test
+        orderDTOList = new ArrayList<>();
+        orderDTOList.add(orderDTO);
+
+        // Create a second order to add to the list
+        OrderDTO orderDTO2 = new OrderDTO();
+        orderDTO2.setOrderId(2L);
+        orderDTO2.setEmail(email);
+        orderDTO2.setTotalAmount(150.0);
+        orderDTO2.setOrderStatus("Order Accepted");
+        orderDTO2.setAddressId(addressId);
+        orderDTO2.setOrderDate(LocalDate.now().minusDays(1));
+        orderDTO2.setOrderItems(new ArrayList<>());
+
+        orderDTOList.add(orderDTO2);
     }
 
     @Test
@@ -119,5 +142,22 @@ public class OrderControllerTest {
         assertEquals(clientSecret, response.getBody());
         verify(stripeService, times(1)).paymentIntent(stripePaymentDTO);
         verify(paymentIntent, times(1)).getClientSecret();
+    }
+
+    @Test
+    void getUserOrders_ShouldReturnOrdersList() {
+        // Arrange
+        when(authUtil.loggedInEmail()).thenReturn(email);
+        when(orderService.getUserOrders(email)).thenReturn(orderDTOList);
+
+        // Act
+        ResponseEntity<List<OrderDTO>> response = orderController.getUserOrders();
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(orderDTOList, response.getBody());
+        assertEquals(2, response.getBody().size());
+        verify(authUtil, times(1)).loggedInEmail();
+        verify(orderService, times(1)).getUserOrders(email);
     }
 }

@@ -4,6 +4,7 @@ import com.commerce.project.exception.APIException;
 import com.commerce.project.exception.ResourceNotFoundException;
 import com.commerce.project.model.*;
 import com.commerce.project.payload.OrderDTO;
+import com.commerce.project.payload.OrderItemDTO;
 import com.commerce.project.repository.*;
 import com.commerce.project.service.CartService;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,6 +73,7 @@ public class OrderServiceImplTest {
     private OrderItem orderItem;
     private Payment payment;
     private List<CartItem> cartItems;
+    private List<Order> orderList;
 
     @BeforeEach
     void setUp() {
@@ -166,6 +168,23 @@ public class OrderServiceImplTest {
 
         // Connect order item to order
         orderItem.setOrder(order);
+
+        // Set up order list
+        orderList = new ArrayList<>();
+        orderList.add(order);
+
+        // Create a second order to add to the list
+        Order order2 = new Order();
+        order2.setOrderId(2L);
+        order2.setEmail(email);
+        order2.setOrderDate(LocalDate.now().minusDays(1));
+        order2.setTotalAmount(150.0);
+        order2.setOrderStatus("Order Accepted");
+        order2.setAddress(address);
+        order2.setPayment(payment);
+        order2.setOrderItems(orderItems);
+
+        orderList.add(order2);
     }
 
     @Test
@@ -176,7 +195,8 @@ public class OrderServiceImplTest {
         when(paymentRepository.save(any(Payment.class))).thenReturn(payment);
         when(orderRepository.save(any(Order.class))).thenReturn(order);
         when(orderItemRepository.saveAll(anyList())).thenReturn(List.of(orderItem));
-        doNothing().when(cartService).deleteProductFromCart(any(Long.class), any(Long.class));
+        // Here's the fix: deleteProductFromCart returns a String, not void
+        when(cartService.deleteProductFromCart(anyLong(), anyLong())).thenReturn("Product removed from cart");
         when(productRepository.save(any(Product.class))).thenReturn(product);
 
         // Act
@@ -241,6 +261,8 @@ public class OrderServiceImplTest {
 
         when(cartRepository.findCartByEmail(email)).thenReturn(emptyCart);
         when(addressRepository.findById(addressId)).thenReturn(Optional.of(address));
+        when(paymentRepository.save(any(Payment.class))).thenReturn(payment);
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
 
         // Act & Assert
         assertThrows(APIException.class, () ->
@@ -251,5 +273,51 @@ public class OrderServiceImplTest {
         verify(paymentRepository, times(1)).save(any(Payment.class));
         verify(orderRepository, times(1)).save(any(Order.class));
         verify(orderItemRepository, never()).saveAll(anyList());
+    }
+
+    @Test
+    void getUserOrders_ShouldReturnOrdersList() {
+        // Arrange
+        when(orderRepository.findByEmailOrderByOrderDateDesc(email)).thenReturn(orderList);
+
+        // Act
+        List<OrderDTO> result = orderService.getUserOrders(email);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(email, result.get(0).getEmail());
+        assertEquals(order.getOrderId(), result.get(0).getOrderId());
+        assertEquals(order.getTotalAmount(), result.get(0).getTotalAmount());
+        assertEquals(order.getOrderStatus(), result.get(0).getOrderStatus());
+        assertEquals(addressId, result.get(0).getAddressId());
+
+        // Check second order
+        assertEquals(email, result.get(1).getEmail());
+        assertEquals(2L, result.get(1).getOrderId());
+        assertEquals(150.0, result.get(1).getTotalAmount());
+
+        // Verify orderItems are mapped correctly
+        assertNotNull(result.get(0).getOrderItems());
+        assertFalse(result.get(0).getOrderItems().isEmpty());
+        OrderItemDTO orderItemDTO = result.get(0).getOrderItems().get(0);
+        assertEquals(orderItem.getQuantity(), orderItemDTO.getQuantity());
+        assertEquals(orderItem.getOrderedProductPrice(), orderItemDTO.getOrderedProductPrice());
+
+        verify(orderRepository, times(1)).findByEmailOrderByOrderDateDesc(email);
+    }
+
+    @Test
+    void getUserOrders_ShouldReturnEmptyList_WhenNoOrdersFound() {
+        // Arrange
+        when(orderRepository.findByEmailOrderByOrderDateDesc(email)).thenReturn(new ArrayList<>());
+
+        // Act
+        List<OrderDTO> result = orderService.getUserOrders(email);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(orderRepository, times(1)).findByEmailOrderByOrderDateDesc(email);
     }
 }

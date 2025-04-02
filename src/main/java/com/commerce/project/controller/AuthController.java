@@ -71,7 +71,7 @@ public class AuthController {
                 .toList();
 
         // LoginResponse response = new LoginResponse(userDetails.getId(), jwtToken, userDetails.getUsername(), roles);
-        LoginResponse response = new LoginResponse(userDetails.getId(), jwtCookie.toString(), userDetails.getUsername(), roles);
+        LoginResponse response = new LoginResponse(userDetails.getId(), jwtCookie.toString(), userDetails.getUsername(), userDetails.getEmail(), roles);
 
         // return ResponseEntity.ok(response);
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString()).body(response);
@@ -144,7 +144,7 @@ public class AuthController {
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        LoginResponse response = new LoginResponse(userDetails.getId(), userDetails.getUsername(), roles);
+        LoginResponse response = new LoginResponse(userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles);
 
         return ResponseEntity.ok().body(response);
     }
