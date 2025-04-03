@@ -63,18 +63,18 @@ public class AuthController {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        // String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);
-        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
+        String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);
+//        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
 
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .toList();
 
-        // LoginResponse response = new LoginResponse(userDetails.getId(), jwtToken, userDetails.getUsername(), roles);
-        LoginResponse response = new LoginResponse(userDetails.getId(), jwtCookie.toString(), userDetails.getUsername(), userDetails.getEmail(), roles);
+        LoginResponse response = new LoginResponse(userDetails.getId(), jwtToken, userDetails.getUsername(), userDetails.getEmail(), roles);
+//        LoginResponse response = new LoginResponse(userDetails.getId(), jwtCookie.toString(), userDetails.getUsername(), userDetails.getEmail(), roles);
 
-        // return ResponseEntity.ok(response);
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString()).body(response);
+        return ResponseEntity.ok(response);
+//        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString()).body(response);
     }
 
     @PostMapping("/signup")
@@ -149,9 +149,13 @@ public class AuthController {
         return ResponseEntity.ok().body(response);
     }
 
+//    @PostMapping("/signout")
+//    public ResponseEntity<?> signOutUser(Authentication authentication) {
+//        ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
+//        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new MessageResponse("You have been logged out"));
+//    }
     @PostMapping("/signout")
-    public ResponseEntity<?> signOutUser(Authentication authentication) {
-        ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new MessageResponse("You have been logged out"));
+        public ResponseEntity<?> signOutUser() {
+        return ResponseEntity.ok(new MessageResponse("You've been logged out successfully"));
     }
 }

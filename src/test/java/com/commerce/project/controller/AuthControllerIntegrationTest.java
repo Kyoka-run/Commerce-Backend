@@ -153,7 +153,7 @@ public class AuthControllerIntegrationTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(cookie().exists("SpringBootCommerce"))
+                .andExpect(jsonPath("$.jwtToken").exists())
                 .andExpect(jsonPath("$.username").value(TEST_USERNAME))
                 .andExpect(jsonPath("$.email").value(TEST_EMAIL))
                 .andExpect(jsonPath("$.roles").isArray())
@@ -175,5 +175,16 @@ public class AuthControllerIntegrationTest {
         resultActions
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Bad credentials"));
+    }
+
+    @Test
+    void signout_ShouldReturnSuccess() throws Exception {
+        ResultActions resultActions = mockMvc.perform(post("/api/auth/signout")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("You've been logged out successfully"));
     }
 }

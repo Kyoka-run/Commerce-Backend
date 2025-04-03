@@ -17,15 +17,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.*;
@@ -56,9 +53,6 @@ public class AuthControllerTest {
     @Mock
     private Authentication authentication;
 
-    @Mock
-    private SecurityContext securityContext;
-
     @InjectMocks
     private AuthController authController;
 
@@ -67,7 +61,7 @@ public class AuthControllerTest {
     private User user;
     private Role userRole;
     private UserDetailsImpl userDetails;
-    private ResponseCookie jwtCookie;
+    private String jwtToken;
 
     @BeforeEach
     void setUp() {
@@ -104,11 +98,7 @@ public class AuthControllerTest {
         userDetails.setPassword("encodedPassword");
         userDetails.setAuthorities(authorities);
 
-        jwtCookie = ResponseCookie.from("jwt", "token")
-                .path("/api")
-                .maxAge(24 * 60 * 60)
-                .httpOnly(true)
-                .build();
+        jwtToken = "test.jwt.token";
     }
 
     @Test
@@ -117,23 +107,19 @@ public class AuthControllerTest {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(authentication);
         when(authentication.getPrincipal()).thenReturn(userDetails);
-        when(jwtUtils.generateJwtCookie(any(UserDetailsImpl.class))).thenReturn(jwtCookie);
+        when(jwtUtils.generateTokenFromUsername(any(UserDetailsImpl.class))).thenReturn(jwtToken);
 
         // Act
         ResponseEntity<?> response = authController.authenticateUser(loginRequest);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getHeaders().containsKey(HttpHeaders.SET_COOKIE));
-        assertEquals(jwtCookie.toString(), response.getHeaders().getFirst(HttpHeaders.SET_COOKIE));
-
-        // Verify the response body contains email
         assertTrue(response.getBody() instanceof LoginResponse);
         LoginResponse loginResponse = (LoginResponse) response.getBody();
-        assertEquals(userDetails.getEmail(), loginResponse.getEmail());
-
+        assertEquals(jwtToken, loginResponse.getJwtToken());
+        assertEquals(userDetails.getUsername(), loginResponse.getUsername());
         verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verify(jwtUtils, times(1)).generateJwtCookie(any(UserDetailsImpl.class));
+        verify(jwtUtils, times(1)).generateTokenFromUsername(any(UserDetailsImpl.class));
     }
 
     @Test
@@ -198,21 +184,14 @@ public class AuthControllerTest {
 
     @Test
     void signOutUser() {
-        // Arrange
-        ResponseCookie emptyCookie = ResponseCookie.from("jwt", null).path("/api").build();
-        when(jwtUtils.getCleanJwtCookie()).thenReturn(emptyCookie);
-
         // Act
-        ResponseEntity<?> response = authController.signOutUser(authentication);
+        ResponseEntity<?> response = authController.signOutUser();
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getHeaders().containsKey(HttpHeaders.SET_COOKIE));
-        assertEquals(emptyCookie.toString(), response.getHeaders().getFirst(HttpHeaders.SET_COOKIE));
         assertTrue(response.getBody() instanceof MessageResponse);
         MessageResponse messageResponse = (MessageResponse) response.getBody();
-        assertEquals("You have been logged out", messageResponse.getMessage());
-        verify(jwtUtils, times(1)).getCleanJwtCookie();
+        assertEquals("You've been logged out successfully", messageResponse.getMessage());
     }
 
     @Test
@@ -247,10 +226,9 @@ public class AuthControllerTest {
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        LoginResponse loginResponse = response.getBody();
-        assertEquals(userDetails.getId(), loginResponse.getId());
-        assertEquals(userDetails.getUsername(), loginResponse.getUsername());
-        assertEquals(userDetails.getEmail(), loginResponse.getEmail());
+        assertEquals(userDetails.getId(), response.getBody().getId());
+        assertEquals(userDetails.getUsername(), response.getBody().getUsername());
+        assertEquals(userDetails.getEmail(), response.getBody().getEmail());
         verify(authentication, times(1)).getPrincipal();
     }
 }
