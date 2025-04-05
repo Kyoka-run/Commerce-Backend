@@ -3,6 +3,17 @@
 ## 🎯 Project Overview
 This is a full-stack e-commerce platform built with Spring Boot and React, featuring secure user authentication, product management, shopping cart functionality, and payment processing integration.
 
+The project consists of two main repositories:
+- Backend Repository: [`Backend`][backend]
+- Frontend Repository: [`Frontend`][frontend]
+
+Try application here:
+[`Food Odering System`][demo]
+
+[backend]: https://github.com/Kyoka-run/Commerce-Backend
+[frontend]: https://github.com/Kyoka-run/Commerce-Frontend
+[demo]: http://kyoka-ecommerce.s3-website-eu-west-1.amazonaws.com/
+
 ## ⚙️ Technology Stack
 
 ### Back-end
