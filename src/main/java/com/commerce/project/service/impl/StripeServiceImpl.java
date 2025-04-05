@@ -27,15 +27,15 @@ public class StripeServiceImpl implements StripeService {
     @Override
     public PaymentIntent paymentIntent(StripePaymentDTO stripePaymentDTO) throws StripeException {
         PaymentIntentCreateParams params =
-                PaymentIntentCreateParams.builder()
-                        .setAmount(stripePaymentDTO.getAmount())
-                        .setCurrency(stripePaymentDTO.getCurrency())
-                        .setAutomaticPaymentMethods(
-                                PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
-                                        .setEnabled(true)
-                                        .build()
-                        )
-                        .build();
+            PaymentIntentCreateParams.builder()
+                .setAmount(stripePaymentDTO.getAmount())
+                .setCurrency(stripePaymentDTO.getCurrency())
+                .setAutomaticPaymentMethods(
+                    PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
+                        .setEnabled(true)
+                        .build()
+                )
+                .build();
 
         return PaymentIntent.create(params);
     }
