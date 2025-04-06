@@ -129,13 +129,16 @@ npm run build
 ## 🖼️ Application Screenshots
 
 ### Product Browsing
-- Restaurant Browsing
-- Food Ordering Process
-- Cart Management
-- Order History
-
-### User Interface
-- Menu Management
-- Order Processing
-- Event Creation
-- Restaurant Settings
+![Image](https://github.com/user-attachments/assets/37f08717-18d1-4799-8e81-7a3ad3a93023)
+### Home Page
+![Image](https://github.com/user-attachments/assets/844ca3a5-9cbe-4f21-ae88-f41eea781893)
+### About Page
+![Image](https://github.com/user-attachments/assets/405fbb02-cc80-4434-bf6d-d0fd8245b38b)
+### Order View
+![Image](https://github.com/user-attachments/assets/e40aadaa-da5b-455b-9dac-a7cd4a1929d7)
+### Login Page
+![Image](https://github.com/user-attachments/assets/5657dff1-4acf-4552-aac8-9d8393b6343a)
+### Cart View
+![Image](https://github.com/user-attachments/assets/5583fe96-723b-493a-b0d7-c3dc117356df)
+### Checkout Flow
+![Image](https://github.com/user-attachments/assets/3fae4245-376c-4d2c-963b-13663ca0ee32)
